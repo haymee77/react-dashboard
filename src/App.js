@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, List, Card, CardContent, Typography, CardMedia, Divider } from '@material-ui/core';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import NumberFormat from 'react-number-format';
+import axios from 'axios';
 
 const mobilityCardStyles = makeStyles((theme) => ({
   card: {
@@ -30,7 +31,25 @@ const mobilityCardStyles = makeStyles((theme) => ({
   },
 }));
 
-function MobilityItem({ name, price, thumbnail, mobiNo }) {
+function MobilityItem({
+  name,
+  price,
+  thumbnail,
+  mobiNo,
+  bookingNo,
+  startAt,
+  returnAt,
+  rentalAdrs,
+  rentalAdrsDetail,
+  rentalAdrsExtra,
+  returnAdrs,
+  returnAdrsDetail,
+  returnAdrsExtra,
+  insuranceName,
+  limitAge,
+  limitExperience,
+  liability,
+}) {
   const classes = mobilityCardStyles();
   return (
     <Card className={classes.card} variant='outlined'>
@@ -40,11 +59,11 @@ function MobilityItem({ name, price, thumbnail, mobiNo }) {
             {name}
           </Typography>
           <Typography variant='subtitle2' color='primary'>
-            예약번호: //NO
+            예약번호: {bookingNo}
             <br /> 차량번호: {mobiNo}
             <br /> 결제금액: <NumberFormat value={price} thousandSeparator={true} displayType={'text'} />
-            <br /> 대여시각: 2020-06-20 13:30
-            <br /> 반납시각: 2020-06-20 15:30
+            <br /> 대여시각: {startAt.replace('T', ' ')}
+            <br /> 반납시각: {returnAt.replace('T', ' ')}
           </Typography>
         </CardContent>
         <CardMedia className={classes.cover} image={thumbnail} title='{name} cover'></CardMedia>
@@ -53,9 +72,11 @@ function MobilityItem({ name, price, thumbnail, mobiNo }) {
       <div>
         <CardContent className={classes.details}>
           <Typography variant='body2' color='textSecondary'>
-            <br /> 보험: 일반자차(26세/1년) 보상한도 300만원
-            <br /> 대여장소: 서울 강남구 봉은사로 438 (삼성동) 5층 네이처모빌리티
-            <br /> 반납장소: 서울 강남구 봉은사로 438 (삼성동) 5층 네이처모빌리티
+            <br /> 보험: {insuranceName}({limitAge}세/{limitExperience}년) 보상한도{' '}
+            <NumberFormat value={liability} thousandSeparator={true} displayType={'text'} />
+            만원
+            <br /> 대여장소: {rentalAdrs} {rentalAdrsExtra ? `${rentalAdrsExtra} ${rentalAdrsDetail}` : rentalAdrsDetail}
+            <br /> 반납장소: {returnAdrs} {returnAdrsExtra ? `${returnAdrsExtra} ${returnAdrsDetail}` : returnAdrsDetail}
           </Typography>
         </CardContent>
       </div>
@@ -63,8 +84,29 @@ function MobilityItem({ name, price, thumbnail, mobiNo }) {
   );
 }
 
-function renderBookingList(mob, idx) {
-  return <MobilityItem name={mob.name} price={mob.price} key={idx} thumbnail={mob.thumbnail} mobiNo={mob.mobiNo} />;
+function renderBookingList(booking, idx) {
+  return (
+    <MobilityItem
+      bookingNo={booking.bookingNo}
+      name={booking.bikeName}
+      price={booking.liability}
+      key={booking.bookingPid}
+      thumbnail={booking.thumbnailImgUrl}
+      mobiNo={booking.bikeNo}
+      startAt={booking.startAt}
+      returnAt={booking.returnAt}
+      rentalAdrs={booking.rentalAddress}
+      rentalAdrsDetail={booking.rentalAddressDetail}
+      rentalAdrsExtra={booking.rentalAddressExtra}
+      returnAdrs={booking.returnAddress}
+      returnAdrsDetail={booking.returnAddressDetail}
+      returnAdrsExtra={booking.returnAddressExtra}
+      insuranceName={booking.insuranceDpName}
+      limitAge={booking.limitAge}
+      limitExperience={booking.limitDrivingExperience}
+      liability={booking.liability}
+    />
+  );
 }
 
 const mobList = [
@@ -88,16 +130,56 @@ const mobList = [
   },
 ];
 
-function App() {
-  return (
-    <div className='App'>
-      <Container maxWidth='sm'>
-        <List component='nav' aria-label='secondary mailbox folders'>
-          {mobList.map(renderBookingList)}
-        </List>
-      </Container>
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    isLoading: true,
+    bookings: [],
+  };
+
+  componentDidMount() {
+    const askToken = axios
+      .post('https://sharing-api.dev.zzimcar.co.kr/client/token', {
+        apiKey: 'apitest',
+        grantType: 'access_token',
+      })
+      .then((response) => {
+        const token = response.data.data.accessToken;
+        const getBookings = axios
+          .post(
+            'https://sharing-api.dev.zzimcar.co.kr/booking/paging',
+            {
+              pageNo: 1,
+              pageRows: 10,
+              targetReqDto: {
+                memberPid: 5496,
+                mobilityType: 'BIKE',
+              },
+            },
+            { headers: { xClientToken: token } }
+          )
+          .then((response) => {
+            console.log(response);
+            this.setState({ bookings: response.data.data.rows });
+          })
+          .catch((error) => console.log(error));
+      })
+      .catch((error) => console.log(error));
+    this.setState({ isLoading: false });
+  }
+
+  render() {
+    const { isLoading, bookings } = this.state;
+    return (
+      <div className='App'>
+        <div className='loading'>{isLoading ? 'Loading...' : ''}</div>
+        <Container maxWidth='sm'>
+          <List component='nav' aria-label='secondary mailbox folders'>
+            {bookings.map(renderBookingList)}
+          </List>
+        </Container>
+      </div>
+    );
+  }
 }
 
 export default App;
