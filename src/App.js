@@ -109,27 +109,6 @@ function renderBookingList(booking, idx) {
   );
 }
 
-const mobList = [
-  {
-    name: 'bike A',
-    mobiNo: '11H3432',
-    price: '3000',
-    thumbnail: 'https://zzimcar-prod.s3.ap-northeast-2.amazonaws.com/zzimcar/car_model/20180809110616_10_MTM.png',
-  },
-  {
-    name: 'car C',
-    mobiNo: '33E3456',
-    price: '5000',
-    thumbnail: 'https://zzimcar-prod.s3.ap-northeast-2.amazonaws.com/zzimcar/car_model/20180724131110_10_Mg.png',
-  },
-  {
-    name: 'bycicle B1',
-    mobiNo: '67G2342',
-    price: '7000',
-    thumbnail: 'https://zzimcar-prod.s3.ap-northeast-2.amazonaws.com/zzimcar/car_model/20180724173109_10_MjI.png',
-  },
-];
-
 class App extends React.Component {
   state = {
     isLoading: true,
@@ -137,14 +116,14 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    const askToken = axios
+    axios
       .post('https://sharing-api.dev.zzimcar.co.kr/client/token', {
         apiKey: 'apitest',
         grantType: 'access_token',
       })
       .then((response) => {
         const token = response.data.data.accessToken;
-        const getBookings = axios
+        axios
           .post(
             'https://sharing-api.dev.zzimcar.co.kr/booking/paging',
             {
