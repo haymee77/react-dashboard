@@ -7,7 +7,6 @@ import {
   TableBody,
   TableFooter,
   TableCell,
-  StyledTableCell,
   TableRow,
   Paper,
 } from '@material-ui/core';
@@ -27,6 +26,11 @@ class Bookings extends React.Component {
   localSharingApiUrl = 'http://localhost:8200';
   prodSharingApiUrl = 'https://sharing-api.dev.zzimcar.co.kr';
 
+  handlePaging = (evt, page) => {
+    console.log(evt);
+    console.log(page);
+  };
+
   componentDidMount() {
     axios
       .post(this.localSharingApiUrl + '/client/token', {
@@ -39,13 +43,16 @@ class Bookings extends React.Component {
           .post(
             this.localSharingApiUrl + '/admin/booking',
             {
-              pageNo: 1,
+              pageNo: 3,
               pageRows: 10,
             },
             { headers: { xClientToken: token } }
           )
           .then((response) => {
-            this.setState({ bookings: response.data.data.rows });
+            this.setState({
+              bookings: response.data.data.rows,
+              pageNo: response.data.data.pageNo,
+            });
           })
           .catch((error) => console.log(error));
       })
@@ -63,7 +70,7 @@ class Bookings extends React.Component {
       },
     }));
 
-    const { bookings } = this.state;
+    const { bookings, pageNo } = this.state;
 
     return (
       <TableContainer component={Paper}>
@@ -71,7 +78,7 @@ class Bookings extends React.Component {
           <TableHead>
             <TableRow>
               <TableCell>예약번호</TableCell>
-              <StyledTableCell>차량번호</StyledTableCell>
+              <TableCell>차량번호</TableCell>
               <TableCell>대여일시</TableCell>
               <TableCell>반납일시</TableCell>
               <TableCell>예약자명</TableCell>
@@ -104,6 +111,8 @@ class Bookings extends React.Component {
                 <Pagination
                   className={bookingTableStyles.pagination}
                   count={10}
+                  page={pageNo}
+                  onChange={this.handlePaging}
                 />
               </TableCell>
             </TableRow>
