@@ -1,17 +1,15 @@
 import React from 'react';
-import { Container } from '@material-ui/core';
+import { HashRouter, Route } from 'react-router-dom';
+import Bookings from './routes/Bookings';
+import Home from './routes/Home';
 
-import Bookings from './Bookings';
-class App extends React.Component {
-  render() {
-    return (
-      <div className='App'>
-        <Container>
-          <Bookings />
-        </Container>
-      </div>
-    );
-  }
+function App() {
+  return (
+    <HashRouter>
+      <Route path='/booking' exact={true} component={Bookings} />
+      <Route path='/' exact={true} component={Home} />
+    </HashRouter>
+  );
 }
 
 export default App;

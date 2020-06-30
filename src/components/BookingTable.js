@@ -1,20 +1,11 @@
 import React from 'react';
 import axios from 'axios';
-import {
-  Table,
-  TableContainer,
-  TableHead,
-  TableBody,
-  TableFooter,
-  TableCell,
-  TableRow,
-  Paper,
-} from '@material-ui/core';
+import { Table, TableContainer, TableHead, TableBody, TableFooter, TableCell, TableRow, Paper } from '@material-ui/core';
 import Pagination from '@material-ui/lab/Pagination';
 import { makeStyles } from '@material-ui/core/styles';
 import NumberFormat from 'react-number-format';
 
-class Bookings extends React.Component {
+class BookingTable extends React.Component {
   state = {
     bookings: [],
     pageNo: 0,
@@ -24,7 +15,7 @@ class Bookings extends React.Component {
   };
 
   localSharingApiUrl = 'http://localhost:8200';
-  prodSharingApiUrl = 'https://sharing-api.dev.zzimcar.co.kr';
+  devSharingApiUrl = 'https://sharing-api.dev.zzimcar.co.kr';
 
   handlePaging = (evt, page) => {
     console.log(evt);
@@ -33,7 +24,7 @@ class Bookings extends React.Component {
 
   componentDidMount() {
     axios
-      .post(this.localSharingApiUrl + '/client/token', {
+      .post(this.devSharingApiUrl + '/client/token', {
         apiKey: 's01oINszUdkAfDxuXLAcC2c4mDNpegnL',
         grantType: 'access_token',
       })
@@ -41,7 +32,7 @@ class Bookings extends React.Component {
         const token = response.data.data.accessToken;
         axios
           .post(
-            this.localSharingApiUrl + '/admin/booking',
+            this.devSharingApiUrl + '/admin/booking',
             {
               pageNo: 3,
               pageRows: 10,
@@ -96,11 +87,7 @@ class Bookings extends React.Component {
                 <TableCell>{booking.subscriberName}</TableCell>
                 <TableCell>{booking.subscriberContact}</TableCell>
                 <TableCell>
-                  <NumberFormat
-                    displayType={'text'}
-                    thousandSeparator={true}
-                    value={booking.payAmount}
-                  />
+                  <NumberFormat displayType={'text'} thousandSeparator={true} value={booking.payAmount} />
                 </TableCell>
               </TableRow>
             ))}
@@ -108,12 +95,7 @@ class Bookings extends React.Component {
           <TableFooter>
             <TableRow>
               <TableCell colSpan={7}>
-                <Pagination
-                  className={bookingTableStyles.pagination}
-                  count={10}
-                  page={pageNo}
-                  onChange={this.handlePaging}
-                />
+                <Pagination className={bookingTableStyles.pagination} count={10} page={pageNo} onChange={this.handlePaging} />
               </TableCell>
             </TableRow>
           </TableFooter>
@@ -123,4 +105,4 @@ class Bookings extends React.Component {
   }
 }
 
-export default Bookings;
+export default BookingTable;
