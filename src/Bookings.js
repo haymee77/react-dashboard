@@ -7,6 +7,7 @@ import {
   TableBody,
   TableFooter,
   TableCell,
+  StyledTableCell,
   TableRow,
   Paper,
 } from '@material-ui/core';
@@ -70,7 +71,7 @@ class Bookings extends React.Component {
           <TableHead>
             <TableRow>
               <TableCell>예약번호</TableCell>
-              <TableCell>차량번호</TableCell>
+              <StyledTableCell>차량번호</StyledTableCell>
               <TableCell>대여일시</TableCell>
               <TableCell>반납일시</TableCell>
               <TableCell>예약자명</TableCell>
