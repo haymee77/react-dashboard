@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {
-  Table,
-  TableContainer,
-  TableHead,
-  TableBody,
-  TableFooter,
-  TableCell,
-  TableRow,
-  Paper,
-} from '@material-ui/core';
+import { Table, TableContainer, TableHead, TableBody, TableFooter, TableCell, TableRow, Paper } from '@material-ui/core';
 import Pagination from '@material-ui/lab/Pagination';
 import { makeStyles } from '@material-ui/core/styles';
 import NumberFormat from 'react-number-format';
 
-const localSharingApiUrl = 'http://localhost:8200';
-const devSharingApiUrl = 'https://sharing-api.dev.zzimcar.co.kr';
+// const sharingApiUrl = 'http://localhost:8200';
+const sharingApiUrl = 'https://sharing-api.dev.zzimcar.co.kr';
 
 export default function BookingTable() {
   const [bookings, setBookings] = useState([]);
@@ -26,7 +17,7 @@ export default function BookingTable() {
 
   const getBookingPaging = (pageNo) => {
     axios
-      .post(localSharingApiUrl + '/client/token', {
+      .post(sharingApiUrl + '/client/token', {
         apiKey: 's01oINszUdkAfDxuXLAcC2c4mDNpegnL',
         grantType: 'access_token',
       })
@@ -34,7 +25,7 @@ export default function BookingTable() {
         const token = response.data.data.accessToken;
         axios
           .post(
-            localSharingApiUrl + '/admin/booking',
+            sharingApiUrl + '/admin/booking',
             {
               pageNo: pageNo,
               pageRows: pageRows,
@@ -113,13 +104,7 @@ export default function BookingTable() {
           {bookings.map((booking) => (
             <TableRow
               key={booking.bookingNo}
-              className={
-                booking.bookingStatus !== 'SUCCESS'
-                  ? booking.bookingStatus === 'CANCEL'
-                    ? classes.cancelRow
-                    : classes.failRow
-                  : classes.successRow
-              }
+              className={booking.bookingStatus !== 'SUCCESS' ? (booking.bookingStatus === 'CANCEL' ? classes.cancelRow : classes.failRow) : classes.successRow}
             >
               <TableCell>{booking.createdAt.replace('T', ' ')}</TableCell>
               <TableCell>{booking.bookingNo}</TableCell>
@@ -130,12 +115,7 @@ export default function BookingTable() {
               <TableCell>{booking.subscriberName}</TableCell>
               <TableCell>{booking.subscriberContact}</TableCell>
               <TableCell align={'right'}>
-                <NumberFormat
-                  displayType={'text'}
-                  thousandSeparator={true}
-                  value={booking.payAmount}
-                />
-                원
+                <NumberFormat displayType={'text'} thousandSeparator={true} value={booking.payAmount} />원
               </TableCell>
             </TableRow>
           ))}
@@ -143,12 +123,7 @@ export default function BookingTable() {
         <TableFooter>
           <TableRow>
             <TableCell colSpan={7}>
-              <Pagination
-                className={classes.pagination}
-                count={lastPageNo}
-                page={pageNo}
-                onChange={handlePaging}
-              />
+              <Pagination className={classes.pagination} count={lastPageNo} page={pageNo} onChange={handlePaging} />
             </TableCell>
           </TableRow>
         </TableFooter>
